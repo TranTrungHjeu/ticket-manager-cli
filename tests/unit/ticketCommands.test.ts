@@ -3,6 +3,7 @@ import { Ticket } from "../../src/models/ticket";
 import {
   createTicketCommand,
   showTicketCommand,
+  listTicketCommand,
 } from "../../src/commands/ticketCommands";
 
 jest.mock("../../src/services/ticketService");
@@ -101,6 +102,50 @@ describe("CLI Commands - Create", () => {
       expect(consoleSpy).toHaveBeenCalled();
       expect(consoleSpy.mock.calls[0][0]).toContain("Lỗi");
       expect(consoleSpy.mock.calls[0][0]).toContain("Ticket not found");
+    });
+  });
+  describe("CLI Commands - List", () => {
+    let consoleSpy: jest.SpyInstance;
+    let mockServiceInstance: any;
+
+    beforeEach(() => {
+      consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+      // Giả lập Service trả về mảng 2 vé khi gọi hàm list()
+      mockServiceInstance = {
+        list: jest
+          .fn()
+          .mockReturnValue([
+            new Ticket(1, "Lỗi giao diện", "Nút bấm bị lệch", "low", ["ui"]),
+            new Ticket(2, "Lỗi máy chủ", "Không kết nối được DB", "high", [
+              "bug",
+            ]),
+          ]),
+      };
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it("should call ticketService.list and log all returned tickets", () => {
+      listTicketCommand(mockServiceInstance, {});
+
+      expect(mockServiceInstance.list).toHaveBeenCalledWith({});
+
+      expect(consoleSpy).toHaveBeenCalled();
+      const output = consoleSpy.mock.calls[0][0];
+      expect(output).toContain("Lỗi giao diện");
+      expect(output).toContain("Lỗi máy chủ");
+    });
+
+    it("should log a message if no tickets match the filter", () => {
+      mockServiceInstance.list.mockReturnValue([]);
+
+      listTicketCommand(mockServiceInstance, { status: "done" });
+
+      expect(consoleSpy).toHaveBeenCalled();
+      expect(consoleSpy.mock.calls[0][0]).toContain("Không tìm thấy");
     });
   });
 });
