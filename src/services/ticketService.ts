@@ -1,5 +1,6 @@
 import { Ticket, Priority, Status } from "../models/ticket";
 import { JsonStorage } from "../storage/jsonStorage";
+import { createTicketSchema, updateTicketStatusSchema } from "../validators/ticketValidator";
 
 export interface TicketFilters {
   status?: Status;
@@ -30,6 +31,7 @@ export class TicketService {
     priority: Priority,
     tags?: string[],
   ): Ticket {
+    createTicketSchema.parse({ title, description, priority, tags });
     const nextId =
       this.tickets.length > 0
         ? Math.max(...this.tickets.map((t) => t.id)) + 1
@@ -74,6 +76,7 @@ export class TicketService {
     });
   }
   public update(id: number, newStatus: Status): Ticket {
+    updateTicketStatusSchema.parse(newStatus);
     this.tickets = this.storage.load<Ticket>();
     const foundTicket = this.findTicketById(id);
     if (!foundTicket) {
