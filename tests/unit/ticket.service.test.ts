@@ -163,4 +163,25 @@ describe("Ticket Service", () => {
       }).toThrow("Ticket not found");
     });
   });
+  describe("Ticket Service - Validation", () => {
+    it("should throw a validation error when creating a ticket with an empty title", () => {
+      expect(() => {
+        ticketService.create("   ", "Description", "high");
+      }).toThrow();
+    });
+
+    it("should throw a validation error when creating a ticket with invalid priority", () => {
+      expect(() => {
+        ticketService.create("Fix bug", "Description", "highest" as any);
+      }).toThrow();
+    });
+
+    it("should throw a validation error when updating a ticket with invalid status", () => {
+      // Tạo một ticket mẫu để test update
+      const ticket = ticketService.create("Fix bug", "Description", "high");
+      expect(() => {
+        ticketService.update(ticket.id, "archived" as any);
+      }).toThrow();
+    });
+  });
 });
