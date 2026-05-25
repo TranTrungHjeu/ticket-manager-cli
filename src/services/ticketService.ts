@@ -80,4 +80,14 @@ export class TicketService {
       return isMatch;
     });
   }
+  public update(id: number, newStatus: Status): Ticket {
+    this.tickets = this.storage.load<Ticket>();
+    const foundTicket = this.tickets.find((t) => t.id === id);
+    if (!foundTicket) {
+      throw new Error("Ticket not found");
+    }
+    foundTicket.status = newStatus;
+    this.storage.save(this.tickets);
+    return foundTicket;
+  }
 }
