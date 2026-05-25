@@ -35,4 +35,13 @@ describe("JSON Storage Layer", () => {
 
     expect(loadedData).toEqual([]);
   });
+  it("should throw a custom error when loading a corrupted JSON file", () => {
+    // Ghi dữ liệu lỗi cú pháp vào file test
+    fs.writeFileSync(testFilePath, "{ invalid json }", "utf-8");
+    const storage = new JsonStorage(testFilePath);
+
+    expect(() => {
+      storage.load();
+    }).toThrow("Cơ sở dữ liệu tệp tin JSON bị hỏng (Invalid JSON structure)!");
+  });
 });
