@@ -1,5 +1,15 @@
 import { TicketService, TicketFilters } from "../services/ticketService";
 import { Priority, Status } from "../models/ticket";
+import { ZodError } from "zod";
+
+function handleCLIError(error: any, prefix: string = "Lỗi"): void {
+  if (error instanceof ZodError) {
+    const issues = error.issues.map((issue) => `- ${issue.message}`).join("\n");
+    console.log(`${prefix} xác thực:\n${issues}`);
+  } else {
+    console.log(`${prefix}: ${error.message}`);
+  }
+}
 
 export function createTicketCommand(
   ticketService: TicketService,
@@ -21,7 +31,7 @@ export function createTicketCommand(
     );
     console.log(`Tạo vé thành công! ID của vé là: ${ticket.id}`);
   } catch (error: any) {
-    console.log(`Lỗi khi tạo vé: ${error.message}`);
+    handleCLIError(error, "Lỗi khi tạo vé");
   }
 }
 
@@ -41,9 +51,10 @@ export function showTicketCommand(
 
     console.log(ticketInfo);
   } catch (error: any) {
-    console.log(`Lỗi: ${error.message}`);
+    handleCLIError(error, "Lỗi");
   }
 }
+
 export function listTicketCommand(
   ticketService: TicketService,
   filters: TicketFilters,
@@ -56,7 +67,6 @@ export function listTicketCommand(
       return;
     }
 
-    // Refactor: Dùng map và join thay vì forEach và let
     const header = "--- DANH SÁCH VÉ MỚI NHẤT ---\n";
     const body = tickets
       .map(
@@ -67,9 +77,10 @@ export function listTicketCommand(
 
     console.log(header + body);
   } catch (error: any) {
-    console.log(`Lỗi: ${error.message}`);
+    handleCLIError(error, "Lỗi");
   }
 }
+
 export function updateTicketCommand(
   ticketService: TicketService,
   id: number,
@@ -81,6 +92,6 @@ export function updateTicketCommand(
       `Cập nhật trạng thái vé #${ticket.id} thành công! Trạng thái mới: ${ticket.status}`,
     );
   } catch (error: any) {
-    console.log(`Lỗi: ${error.message}`);
+    handleCLIError(error, "Lỗi");
   }
 }
