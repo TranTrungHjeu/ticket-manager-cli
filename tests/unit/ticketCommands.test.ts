@@ -4,6 +4,7 @@ import {
   createTicketCommand,
   showTicketCommand,
   listTicketCommand,
+  updateTicketCommand,
 } from "../../src/commands/ticketCommands";
 
 jest.mock("../../src/services/ticketService");
@@ -146,6 +147,46 @@ describe("CLI Commands - Create", () => {
 
       expect(consoleSpy).toHaveBeenCalled();
       expect(consoleSpy.mock.calls[0][0]).toContain("Không tìm thấy");
+    });
+  });
+  describe("CLI Commands - Update", () => {
+    let consoleSpy: jest.SpyInstance;
+    let mockServiceInstance: any;
+
+    beforeEach(() => {
+      consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+      mockServiceInstance = {
+        update: jest
+          .fn()
+          .mockReturnValue(
+            new Ticket(1, "Sửa nút Login", "Nút bị lệch", "high", ["ui"]),
+          ),
+      };
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it("should call ticketService.update and log success message", () => {
+      updateTicketCommand(mockServiceInstance, 1, "in_progress" as any);
+
+      expect(mockServiceInstance.update).toHaveBeenCalledWith(1, "in_progress");
+
+      expect(consoleSpy).toHaveBeenCalled();
+      expect(consoleSpy.mock.calls[0][0]).toContain("thành công");
+    });
+
+    it("should log an error message if update fails (e.g., ticket not found)", () => {
+      mockServiceInstance.update.mockImplementation(() => {
+        throw new Error("Ticket not found");
+      });
+
+      updateTicketCommand(mockServiceInstance, 99, "done" as any);
+      expect(consoleSpy).toHaveBeenCalled();
+      expect(consoleSpy.mock.calls[0][0]).toContain("Lỗi");
+      expect(consoleSpy.mock.calls[0][0]).toContain("Ticket not found");
     });
   });
 });
