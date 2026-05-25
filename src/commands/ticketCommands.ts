@@ -24,3 +24,23 @@ export function createTicketCommand(
     console.log(`Lỗi khi tạo vé: ${error.message}`);
   }
 }
+
+export function showTicketCommand(
+  ticketService: TicketService,
+  id: number,
+): void {
+  try {
+    const ticket = ticketService.show(id);
+    const ticketInfo =
+      `--- CHI TIẾT VÉ #${ticket.id} ---\n` +
+      `Tiêu đề    : ${ticket.title}\n` +
+      `Mô tả      : ${ticket.description}\n` +
+      `Trạng thái : ${ticket.status}\n` +
+      `Ưu tiên    : ${ticket.priority}\n` +
+      `Tags       : ${ticket.tags?.join(", ") || "Không có"}`;
+
+    console.log(ticketInfo);
+  } catch (error: any) {
+    console.log(`Lỗi: ${error.message}`);
+  }
+}
