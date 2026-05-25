@@ -69,4 +69,57 @@ describe("Ticket Service", () => {
       ticketService.show(99);
     }).toThrow("Ticket not found");
   });
+
+  describe("Ticket Service - List and Filter", () => {
+    let ticketService: TicketService;
+    let mockStorage: any;
+
+    beforeEach(() => {
+      // 1. Tạo dữ liệu giả với các thuộc tính khác nhau để test bộ lọc
+      const mockTickets = [
+        new Ticket(1, "Ticket 1", "Desc 1", "high", ["bug"]),
+        new Ticket(2, "Ticket 2", "Desc 2", "low", ["feature", "ui"]),
+        new Ticket(3, "Ticket 3", "Desc 3", "high", ["bug", "urgent"]),
+      ];
+
+      // Ép kiểu status của vé số 2 thành 'done' để test
+      mockTickets[1].status = "done";
+
+      // 2. Cài đặt Storage giả trả về danh sách vé trên
+      mockStorage = {
+        load: jest.fn().mockReturnValue(mockTickets),
+        save: jest.fn(),
+      };
+
+      // 3. Khởi tạo Service
+      ticketService = new TicketService(mockStorage);
+    });
+
+    it("should return all tickets when no filter is provided", () => {
+      const results = ticketService.list();
+      expect(results.length).toBe(3);
+    });
+
+    it("should filter tickets by status", () => {
+      // Truyền object filter vào hàm list
+      const results = ticketService.list({ status: "done" });
+      expect(results.length).toBe(1);
+      expect(results[0].id).toBe(2);
+    });
+
+    it("should filter tickets by priority", () => {
+      const results = ticketService.list({ priority: "high" });
+      expect(results.length).toBe(2);
+      // Cả 2 vé trả về phải có priority là high
+      expect(results.every((t) => t.priority === "high")).toBe(true);
+    });
+
+    it("should filter tickets by tags", () => {
+      // Lọc các vé có tag 'bug'
+      const results = ticketService.list({ tags: "bug" });
+      expect(results.length).toBe(2);
+      expect(results[0].id).toBe(1);
+      expect(results[1].id).toBe(3);
+    });
+  });
 });
