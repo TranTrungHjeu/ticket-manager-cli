@@ -122,4 +122,45 @@ describe("Ticket Service", () => {
       expect(results[1].id).toBe(3);
     });
   });
+  describe("Ticket Service - Update", () => {
+    let ticketService: TicketService;
+    let mockStorage: any;
+
+    beforeEach(() => {
+      // 1. Chuẩn bị 1 vé mặc định (status khởi tạo thường là 'open')
+      const mockTickets = [
+        new Ticket(1, "Fix database", "Cannot connect", "high", ["db"]),
+      ];
+
+      // 2. Setup mock Storage
+      mockStorage = {
+        load: jest.fn().mockReturnValue(mockTickets),
+        save: jest.fn(), // Theo dõi xem hàm save có được gọi để ghi file không
+      };
+
+      // 3. Khởi tạo Service
+      ticketService = new TicketService(mockStorage);
+    });
+
+    it("should update ticket status successfully and save to storage", () => {
+      // Act: Gọi hàm update để đổi status thành 'in_progress'
+      // Giả định hàm update nhận vào (id, newStatus)
+      const updatedTicket = ticketService.update(1, "in_progress" as any);
+
+      // Assert: Kiểm tra xem status đã đổi chưa
+      expect(updatedTicket).toBeDefined();
+      expect(updatedTicket.id).toBe(1);
+      expect(updatedTicket.status).toBe("in_progress");
+
+      // Assert: Tối quan trọng - phải lưu lại vào file sau khi update
+      expect(mockStorage.save).toHaveBeenCalledTimes(1);
+    });
+
+    it("should throw an error if updating a non-existent ticket", () => {
+      // Act & Assert: Tìm ID 99 không tồn tại
+      expect(() => {
+        ticketService.update(99, "done" as any);
+      }).toThrow("Ticket not found");
+    });
+  });
 });
