@@ -1,12 +1,26 @@
-import { Ticket, Priority } from "../models/ticket";
+import { Ticket, Priority, Status } from "../models/ticket";
 import { JsonStorage } from "../storage/jsonStorage";
+
+export interface TicketFilters {
+  status?: Status;
+  priority?: Priority;
+  tags?: string;
+}
 
 export class TicketService {
   private storage: JsonStorage;
   private tickets: Ticket[];
 
-  constructor(filePath: string) {
-    this.storage = new JsonStorage(filePath);
+  constructor(storageOrPath: any) {
+    if (typeof storageOrPath === "string") {
+      // Đáp ứng bài test create & show (nhận string)
+      this.storage = new JsonStorage(storageOrPath);
+    } else {
+      // Đáp ứng bài test list (nhận object mockStorage)
+      this.storage = storageOrPath;
+    }
+
+    // Bây giờ this.storage chắc chắn là 1 object có hàm load()
     this.tickets = this.storage.load<Ticket>();
   }
 
@@ -16,23 +30,19 @@ export class TicketService {
     priority: Priority,
     tags?: string[],
   ): Ticket {
-    // 1. Tự động tính toán ID tiếp theo (ID lớn nhất hiện tại + 1, nếu mảng rỗng thì là 1)
     const nextId =
       this.tickets.length > 0
         ? Math.max(...this.tickets.map((t) => t.id)) + 1
         : 1;
 
-    // 2. Tạo instance Ticket mới
     const newTicket = new Ticket(nextId, title, description, priority, tags);
 
-    // 3. Đẩy vào mảng quản lý hiện tại
     this.tickets.push(newTicket);
-
-    // 4. Lưu toàn bộ mảng mới ghi đè xuống file JSON
     this.storage.save(this.tickets);
 
     return newTicket;
   }
+
   public show(id: number): Ticket {
     const foundTicket = this.tickets.find((t) => t.id === id);
 
@@ -41,5 +51,33 @@ export class TicketService {
     }
 
     return foundTicket;
+  }
+
+  public list(filters?: TicketFilters): Ticket[] {
+    // Đọc data mới nhất để pass bài test lọc
+    const currentTickets = this.storage.load<Ticket>();
+
+    if (!filters) {
+      return currentTickets;
+    }
+
+    return currentTickets.filter((ticket) => {
+      let isMatch = true;
+
+      if (filters.status && ticket.status !== filters.status) {
+        isMatch = false;
+      }
+      if (filters.priority && ticket.priority !== filters.priority) {
+        isMatch = false;
+      }
+      if (
+        filters.tags &&
+        (!ticket.tags || !ticket.tags.includes(filters.tags))
+      ) {
+        isMatch = false;
+      }
+
+      return isMatch;
+    });
   }
 }
