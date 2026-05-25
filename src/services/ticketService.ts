@@ -33,4 +33,13 @@ export class TicketService {
 
     return newTicket;
   }
+  public show(id: number): Ticket {
+    const foundTicket = this.tickets.find((t) => t.id === id);
+
+    if (!foundTicket) {
+      throw new Error("Ticket not found");
+    }
+
+    return foundTicket;
+  }
 }
