@@ -49,22 +49,23 @@ export function listTicketCommand(
   filters: TicketFilters,
 ): void {
   try {
-    // Gọi tầng Service để lấy danh sách vé đã được lọc
     const tickets = ticketService.list(filters);
 
-    // Kiểm tra nếu mảng rỗng (đáp ứng test case số 2)
     if (tickets.length === 0) {
       console.log("Không tìm thấy vé nào phù hợp.");
       return;
     }
 
-    // Ghép danh sách thành một chuỗi văn bản lớn để in ra terminal (đáp ứng test case số 1)
-    let output = "--- DANH SÁCH VÉ MỚI NHẤT ---\n";
-    tickets.forEach((ticket) => {
-      output += `[#${ticket.id}] ${ticket.title} | Cấp độ: ${ticket.priority} | Trạng thái: ${ticket.status}\n`;
-    });
+    // Refactor: Dùng map và join thay vì forEach và let
+    const header = "--- DANH SÁCH VÉ MỚI NHẤT ---\n";
+    const body = tickets
+      .map(
+        (t) =>
+          `[#${t.id}] ${t.title} | Cấp độ: ${t.priority} | Trạng thái: ${t.status}`,
+      )
+      .join("\n");
 
-    console.log(output);
+    console.log(header + body);
   } catch (error: any) {
     console.log(`Lỗi: ${error.message}`);
   }
