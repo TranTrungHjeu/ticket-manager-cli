@@ -1,5 +1,5 @@
 import { TicketService, TicketFilters } from "../services/ticketService";
-import { Priority } from "../models/ticket";
+import { Priority, Status } from "../models/ticket";
 
 export function createTicketCommand(
   ticketService: TicketService,
@@ -66,6 +66,20 @@ export function listTicketCommand(
       .join("\n");
 
     console.log(header + body);
+  } catch (error: any) {
+    console.log(`Lỗi: ${error.message}`);
+  }
+}
+export function updateTicketCommand(
+  ticketService: TicketService,
+  id: number,
+  newStatus: Status,
+): void {
+  try {
+    const ticket = ticketService.update(id, newStatus);
+    console.log(
+      `Cập nhật trạng thái vé #${ticket.id} thành công! Trạng thái mới: ${ticket.status}`,
+    );
   } catch (error: any) {
     console.log(`Lỗi: ${error.message}`);
   }
