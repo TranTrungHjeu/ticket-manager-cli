@@ -1,4 +1,4 @@
-import { TicketService } from "../services/ticketService";
+import { TicketService, TicketFilters } from "../services/ticketService";
 import { Priority } from "../models/ticket";
 
 export function createTicketCommand(
@@ -40,6 +40,31 @@ export function showTicketCommand(
       `Tags       : ${ticket.tags?.join(", ") || "Không có"}`;
 
     console.log(ticketInfo);
+  } catch (error: any) {
+    console.log(`Lỗi: ${error.message}`);
+  }
+}
+export function listTicketCommand(
+  ticketService: TicketService,
+  filters: TicketFilters,
+): void {
+  try {
+    // Gọi tầng Service để lấy danh sách vé đã được lọc
+    const tickets = ticketService.list(filters);
+
+    // Kiểm tra nếu mảng rỗng (đáp ứng test case số 2)
+    if (tickets.length === 0) {
+      console.log("Không tìm thấy vé nào phù hợp.");
+      return;
+    }
+
+    // Ghép danh sách thành một chuỗi văn bản lớn để in ra terminal (đáp ứng test case số 1)
+    let output = "--- DANH SÁCH VÉ MỚI NHẤT ---\n";
+    tickets.forEach((ticket) => {
+      output += `[#${ticket.id}] ${ticket.title} | Cấp độ: ${ticket.priority} | Trạng thái: ${ticket.status}\n`;
+    });
+
+    console.log(output);
   } catch (error: any) {
     console.log(`Lỗi: ${error.message}`);
   }
