@@ -1,43 +1,40 @@
-import fs from "fs";
+import { fs, vol } from "memfs";
 import { JsonStorage } from "../../src/storage/jsonStorage";
 
-describe("JSON Storage Layer", () => {
-  const testFilePath = "./test-data.json";
+// Mock module 'fs' bằng 'memfs'
+jest.mock("fs", () => require("memfs").fs);
 
-  // Dọn dẹp file sau mỗi test để không làm rác project
-  afterEach(() => {
-    if (fs.existsSync(testFilePath)) {
-      fs.unlinkSync(testFilePath);
-    }
+describe("JSON Storage Layer", () => {
+  const testFilePath = "/test-data.json";
+
+  beforeEach(() => {
+    // Reset đĩa ảo về trạng thái sạch trước mỗi test case
+    vol.reset();
   });
 
   it("should save an array of data and load it back correctly", () => {
-    // Arrange: Khởi tạo storage với đường dẫn file test
     const storage = new JsonStorage(testFilePath);
     const mockData = [
       { id: 1, title: "Test Ticket" },
       { id: 2, title: "Another Ticket" },
     ];
 
-    // Act: Gọi hàm save và load
     storage.save(mockData);
     const loadedData = storage.load();
 
-    // Assert: Kỳ vọng dữ liệu đọc lên phải y hệt dữ liệu đã lưu
-    expect(fs.existsSync(testFilePath)).toBe(true); // File phải được tạo ra
-    expect(loadedData).toEqual(mockData); // Dữ liệu không bị sai lệch
+    expect(fs.existsSync(testFilePath)).toBe(true);
+    expect(loadedData).toEqual(mockData);
   });
 
   it("should return an empty array if the file does not exist", () => {
-    const storage = new JsonStorage("./non-existent.json");
-
+    const storage = new JsonStorage("/non-existent.json");
     const loadedData = storage.load();
-
     expect(loadedData).toEqual([]);
   });
+
   it("should throw a custom error when loading a corrupted JSON file", () => {
-    // Ghi dữ liệu lỗi cú pháp vào file test
-    fs.writeFileSync(testFilePath, "{ invalid json }", "utf-8");
+    // Ghi file lỗi cú pháp vào bộ nhớ RAM ảo
+    vol.writeFileSync(testFilePath, "{ invalid json }");
     const storage = new JsonStorage(testFilePath);
 
     expect(() => {
