@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1,
+    "title": "Hoc TDD va AI",
+    "description": "Thuc hanh chu trinh Red-Green-Refactor dung chuan",
+    "priority": "high",
+    "tags": [
+      "tdd",
+      "learning"
+    ],
+    "status": "in_progress",
+    "createdAt": "2026-05-25T17:24:30.006Z",
+    "updatedAt": "2026-05-25T17:24:30.006Z"
+  }
+]
