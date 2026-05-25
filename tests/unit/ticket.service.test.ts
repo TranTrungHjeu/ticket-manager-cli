@@ -48,4 +48,25 @@ describe("Ticket Service", () => {
     expect(savedData.length).toBe(1);
     expect(savedData[0].title).toBe("Fix login bug");
   });
+
+  // Thêm test cho hàm show (nếu có) để kiểm tra việc tìm kiếm ticket theo ID
+  it("should return the ticket when a valid ID is provided", () => {
+    // Arrange: Cần tạo sẵn 1 ticket trước để có data tìm kiếm
+    ticketService.create("Ticket A", "Description A", "high");
+
+    // Act: Gọi hàm show với ID = 1 (vì đây là ticket đầu tiên được tạo)
+    const foundTicket = ticketService.show(1);
+
+    // Assert: Kiểm tra xem có tìm đúng ticket không
+    expect(foundTicket).toBeDefined();
+    expect(foundTicket.id).toBe(1);
+    expect(foundTicket.title).toBe("Ticket A");
+  });
+
+  it("should throw an error when ticket is not found", () => {
+    // Act & Assert: Tìm một ID không tồn tại và kỳ vọng nó văng ra lỗi
+    expect(() => {
+      ticketService.show(99);
+    }).toThrow("Ticket not found");
+  });
 });
