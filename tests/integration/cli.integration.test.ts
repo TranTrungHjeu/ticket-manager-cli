@@ -44,7 +44,7 @@ describe("CLI Integration Tests", () => {
   };
 
   it("should create a ticket successfully via CLI", () => {
-    const output = runCLI("create -t 'Integration Task' -d 'Desc' -p high");
+    const output = runCLI('create -t "Integration Task" -d "Desc" -p high');
     expect(output).toContain("Tạo vé thành công!");
     expect(output).toContain("ID của vé là: 1");
 
@@ -55,8 +55,8 @@ describe("CLI Integration Tests", () => {
   });
 
   it("should list tickets successfully via CLI", () => {
-    runCLI("create -t 'Task 1' -d 'Desc 1' -p low");
-    runCLI("create -t 'Task 2' -d 'Desc 2' -p high");
+    runCLI('create -t "Task 1" -d "Desc 1" -p low');
+    runCLI('create -t "Task 2" -d "Desc 2" -p high');
 
     const output = runCLI("list");
     expect(output).toContain("Task 1");
@@ -64,7 +64,7 @@ describe("CLI Integration Tests", () => {
   });
 
   it("should show ticket details successfully via CLI", () => {
-    runCLI("create -t 'Unique Task' -d 'Unique Desc' -p medium");
+    runCLI('create -t "Unique Task" -d "Unique Desc" -p medium');
 
     const output = runCLI("show 1");
     expect(output).toContain("CHI TIẾT VÉ #1");
@@ -73,7 +73,7 @@ describe("CLI Integration Tests", () => {
   });
 
   it("should update ticket status successfully via CLI", () => {
-    runCLI("create -t 'Update Task' -d 'Desc' -p low");
+    runCLI('create -t "Update Task" -d "Desc" -p low');
 
     const output = runCLI("update 1 in_progress");
     expect(output).toContain("Cập nhật trạng thái vé #1 thành công!");
@@ -81,7 +81,7 @@ describe("CLI Integration Tests", () => {
   });
 
   it("should print validation error clean output when creating a ticket with empty title", () => {
-    const output = runCLI("create -t '' -d 'Desc' -p high");
+    const output = runCLI('create -t "" -d "Desc" -p high');
     expect(output).toContain("Lỗi");
     expect(output).not.toContain("ZodError");
     expect(output).not.toContain("at "); // Không được có stack trace
