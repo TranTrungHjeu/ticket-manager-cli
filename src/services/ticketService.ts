@@ -44,19 +44,12 @@ export class TicketService {
   }
 
   public show(id: number): Ticket {
-    const foundTicket = this.tickets.find((t) => t.id === id);
-
-    if (!foundTicket) {
-      throw new Error("Ticket not found");
-    }
-
-    return foundTicket;
+    this.tickets = this.storage.load<Ticket>();
+    return this.findTicketById(id);
   }
 
   public list(filters?: TicketFilters): Ticket[] {
-    // Đọc data mới nhất để pass bài test lọc
     const currentTickets = this.storage.load<Ticket>();
-
     if (!filters) {
       return currentTickets;
     }
@@ -82,12 +75,20 @@ export class TicketService {
   }
   public update(id: number, newStatus: Status): Ticket {
     this.tickets = this.storage.load<Ticket>();
-    const foundTicket = this.tickets.find((t) => t.id === id);
+    const foundTicket = this.findTicketById(id);
     if (!foundTicket) {
       throw new Error("Ticket not found");
     }
     foundTicket.status = newStatus;
     this.storage.save(this.tickets);
+    return foundTicket;
+  }
+  // Hàm dùng nội bộ trong Service
+  private findTicketById(id: number): Ticket {
+    const foundTicket = this.tickets.find((t) => t.id === id);
+    if (!foundTicket) {
+      throw new Error("Ticket not found");
+    }
     return foundTicket;
   }
 }
